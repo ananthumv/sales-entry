@@ -1,0 +1,170 @@
+import React, { useState } from 'react';
+
+function Details() {
+  const [rows, setRows] = useState([
+    { srNo: 1, itemName: 'Item Name', qty: 0, rate: 0, amount: 0 }
+  ]);
+
+  const [addRow, setAddRow] = useState(false);
+  const [totalAmnt, setTotalAmnt] = useState(0);
+
+  const handleAddRow = () => {
+    setAddRow(true);
+    const newRow = {
+      srNo: rows.length + 1,
+      itemName: '',
+      qty: 0,
+      rate: 0,
+      amount: 0,
+    };
+    setRows([...rows, newRow]);
+  };
+
+  const insertAddedRow = () => {
+    setAddRow(false);
+  };
+
+  const handleRemoveRow = (index) => {
+    const updatedRows = [...rows];
+    updatedRows.splice(index, 1);
+    setRows(updatedRows);
+  };
+
+  const handleInputChange = (index, field, value) => {
+    const updatedRows = [...rows];
+    const updatedRow = { ...updatedRows[index], [field]: value };
+    
+    // Update the amount property based on the quantity and rate
+    updatedRow.amount = updatedRow.qty * updatedRow.rate;
+
+    updatedRows[index] = updatedRow;
+    setRows(updatedRows);
+  };
+
+  // Calculate total amount
+  const calculateTotalAmount = () => {
+    const totalAmount = rows.reduce((total, row) => total + row.amount, 0);
+    setTotalAmnt(totalAmount);
+  };
+
+  // Update total amount whenever rows change
+  React.useEffect(() => {
+    calculateTotalAmount();
+  }, [rows]);
+
+  return (
+    <>
+      <div id="main">
+        <table>
+          <thead>
+            <tr>
+              <th className="mainTh" colSpan="5">
+                <h3>Detail</h3>
+              </th>
+            </tr>
+          </thead>
+          <thead>
+            <tr>
+              <th>Sr No</th>
+              <th>Item Name</th>
+              <th>Qty</th>
+              <th>Rate</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+                rows.length === 1?
+                rows.map((row, index) => (
+                 <tr key={index}>
+                 <td>{row.srNo}</td>
+                 <td>
+                   <input
+                     type="text"
+                     value={row.itemName}
+                     onChange={(e) => handleInputChange(index, 'itemName', e.target.value)}
+                   />
+                 </td>
+                 <td>
+                   <input
+                     type="number"
+                     value={row.qty}
+                     onChange={(e) => handleInputChange(index, 'qty', e.target.value)}
+                   />
+                 </td>
+                 <td>
+                   <input
+                     type="number"
+                     value={row.rate}
+                     onChange={(e) => handleInputChange(index, 'rate', e.target.value)}
+                   />
+                 </td>
+                 <td>{row.amount}</td>
+                 <td>
+                   <button onClick={() => handleRemoveRow(index)}>Remove</button>
+                 </td>
+             </tr>
+                ))
+               :
+            
+            
+            rows.map((row, index) => (
+              <tr key={index}>
+                <td>{row.srNo}</td>
+                <td>
+                  {addRow && index === rows.length - 1 ? (
+                    <input
+                      type="text"
+                      value={row.itemName}
+                      onChange={(e) => handleInputChange(index, 'itemName', e.target.value)}
+                    />
+                  ) : (
+                    row.itemName
+                  )}
+                </td>
+                <td>
+                  {addRow && index === rows.length - 1 ? (
+                    <input
+                      type="number"
+                      value={row.qty}
+                      onChange={(e) => handleInputChange(index, 'qty', e.target.value)}
+                    />
+                  ) : (
+                    row.qty
+                  )}
+                </td>
+                <td>
+                  {addRow && index === rows.length - 1 ? (
+                    <input
+                      type="number"
+                      value={row.rate}
+                      onChange={(e) => handleInputChange(index, 'rate', e.target.value)}
+                    />
+                  ) : (
+                    row.rate
+                  )}
+                </td>
+                <td>{row.qty * row.rate}</td>
+                <td>
+                  <button onClick={() => handleRemoveRow(index)}>Remove</button>
+                </td>
+              </tr>
+            ))}
+            <tr>
+              <td colSpan="4">Total</td>
+              <td>{totalAmnt}</td>
+            </tr>
+          </tbody>
+        </table>
+        <div id="functions">
+          <button onClick={handleAddRow}>New</button>
+          <button onClick={insertAddedRow}>Insert</button>
+          <button>Save</button>
+          <button>Print</button>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default Details;
